@@ -3,7 +3,8 @@ import { cpus } from 'os';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { Worker } from "jest-worker";
-import { join } from 'path';
+import { join, relative } from 'path';
+import chalk from 'chalk';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const hasteMapOptions = {
@@ -24,8 +25,13 @@ const worker = new Worker(join(root, 'worker.js'), {
 });
 await Promise.all(
     Array.from(testFiles).map(async (testFile) => {
-        const testResult = await worker.runTest(testFile);
-        console.log(testResult);
+        const { success, errorMessage } = await worker.runTest(testFile);
+        const status = success ? chalk.green.inverse.bold('PASS') : chalk.red.inverse.bold('FAIL');
+        console.log(status + ' ' + chalk.dim(relative( root, testFile)));
+        if (!success) {
+            console.log(' ' + errorMessage);
+        }
+        console.log('\n');
     })
 )
 worker.end();
