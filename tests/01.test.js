@@ -1,1 +1,6 @@
-expect([1,3,4]).toContain(2);
+const fn = mock.fn();
+
+expect(fn).not.toHaveBeenCalled();
+
+fn();
+expect(fn).toHaveBeenCalled();
